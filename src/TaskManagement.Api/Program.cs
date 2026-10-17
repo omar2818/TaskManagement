@@ -17,7 +17,9 @@ builder.Services
     .AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-builder.Services.AddApplication().AddInfrastructure(builder.Configuration);
+builder.Services
+    .AddApplication()
+    .AddInfrastructure(builder.Configuration);
 
 // ---- JWT authentication ----
 var jwt = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>() ?? new JwtSettings();
@@ -81,10 +83,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
+    .WithOrigins(allowedOrigins)
+    .WithHeaders("Authorization", "Content-Type", "Accept")
+    .WithMethods("GET", "POST", "PATCH", "DELETE")));
+
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseCors();
 // Swagger stays enabled in every environment so reviewers can always test the API.
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task Management API v1"));
