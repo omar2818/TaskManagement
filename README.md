@@ -90,14 +90,5 @@ Configurable in `appsettings.json` under `Seed:Admin`. The seeder runs on every 
 dotnet test
 ```
 
-## Assumptions
-- SQL Server is the database and the schema is managed with EF Core migrations, applied automatically at startup (fine for this task; production would usually apply them in a deploy step).
-- Public registration always creates a normal `User`; only an admin can create other admins.
-- The admin cannot delete their own account. Deleted users are soft-deleted (can be re-registered with the same email).
-- An admin only sees/updates their own tasks, like any user (the spec does not give admins task access).
-- "Same day" for duplicate detection means the same UTC calendar day.
-- The in-memory queue is lost on restart (acceptable per the spec; Hangfire/RabbitMQ would be the next step).
-- The JWT key in `appsettings.json` is for development only - override `Jwt__Key` in real deployments.
-
 ## Video walkthrough checklist
-Project structure -> architecture/layers -> login + JWT + Swagger Authorize -> seeded admin -> admin APIs -> task APIs (+ ownership 404) -> Redis (show MISS then HIT in logs, then invalidation after PATCH) -> background worker (create task, watch status change after ~3 s) -> business rules (duplicate title 409, sorted list).
+You Can Find Video Through this Drive link: https://drive.google.com/drive/folders/16BBsaXSZnXTuEh3SWpLLKyUEem65yH3s?usp=sharing.
