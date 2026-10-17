@@ -137,18 +137,6 @@ frontend/src
 ## Changes since Stage 1
 1. **CORS** - allow-list read from `Cors:AllowedOrigins` (default `http://localhost:5173`; Docker adds `http://localhost:3000`). Only the needed headers and methods are allowed. *Why:* browsers block cross-origin calls otherwise.
 2. **JSON error bodies for 401/403** - `AddProblemDetails()` + `UseStatusCodePages()`. *Why:* the JWT challenge/forbidden responses were empty and the UI needs a consistent error format. (400/404/409 and domain errors were already mapped by the exception middleware; no endpoint returns 500 for them.)
-3. **UTC dates** - EF value converters mark `DateTime` values as UTC. *Why:* SQL Server returns `Unspecified` kinds, so the JSON had no `Z` and browsers showed wrong local times.
-4. **Database-enforced duplicate-title rule** - migration `EnforceUniqueTaskTitlePerDay` adds persisted computed columns (`LOWER(Title)`, `CAST(CreatedAt AS date)`) and a unique index per user. The exception middleware maps a unique-index violation to **409** with a readable message. *Why:* the Stage 1 check-then-insert could let two simultaneous requests create duplicates.
-5. **Atomic background update** - the worker now uses a single `UPDATE` (`ExecuteUpdateAsync`) that sets `ProcessedAt` and moves only `Pending -> InProgress`. *Why:* the old load-modify-save could overwrite a status the user changed at the same moment.
-6. **Docker Compose** - added a `frontend` service (nginx) so the whole stack starts with one command.
-
-## Enhancements (beyond the brief)
-- Duplicate task titles and duplicate emails are protected at database level (409 even under concurrent requests); the worker can no longer overwrite a user's status change (changes 4 and 5 above).
-- Session expiry is handled in one place: any 401 logs the user out with a clear message, and after logging in again they return to the page they were on.
-- Form input is kept after server errors, submit buttons are disabled while a request runs, and server validation messages appear next to the field.
-- Fewer API calls: TanStack Query caching, detail cache seeded after create/update, polling only while a task awaits processing, no retries on 4xx errors, and the cache is cleared on logout so users never see each other's data.
-- Admins cannot delete themselves (button hidden in the UI, 409 in the API); deleted users' tokens stop working immediately.
-- Accessibility: labelled inputs, `aria-invalid` and described-by error text, visible focus, skip link, `role="status"/"alert"` messages, native modal dialog.
 
 ## Tests
 ```bash
